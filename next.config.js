@@ -30,6 +30,16 @@ const nextConfig = {
     // 启用服务器组件外部包
     serverComponentsExternalPackages: ['@supabase/supabase-js'],
   },
+  
+  // 优化构建配置
+  swcMinify: true,
+  poweredByHeader: false,
+  
+  // 配置压缩
+  compress: true,
+  
+  // 配置静态文件缓存
+  generateEtags: true,
 }
 
 module.exports = nextConfig
