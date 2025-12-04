@@ -3,12 +3,10 @@ const nextConfig = {
   // 设置输出目录为build，适配Render部署要求
   distDir: 'build',
   
-  // 启用独立输出模式，减少依赖
-  output: 'standalone',
-  
   // 启用图片优化，现在已安装sharp包
   images: {
-    unoptimized: false
+    unoptimized: false,
+    domains: ['your-app-name.onrender.com'], // 替换为您的实际域名
   },
   
   // 确保基础路径正确
