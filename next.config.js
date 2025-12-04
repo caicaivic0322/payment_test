@@ -6,14 +6,32 @@ const nextConfig = {
   // 启用独立输出模式，减少依赖
   output: 'standalone',
   
-  // 禁用图片优化，避免sharp包依赖问题
+  // 启用图片优化，现在已安装sharp包
   images: {
-    unoptimized: true
+    unoptimized: false
   },
   
   // 确保基础路径正确
   basePath: '',
   assetPrefix: '',
+  
+  // 配置webpack以解决文件复制问题
+  webpack: (config, { isServer }) => {
+    // 解决文件复制问题
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+      };
+    }
+    return config;
+  },
+  
+  // 配置实验性功能
+  experimental: {
+    // 启用服务器组件外部包
+    serverComponentsExternalPackages: ['@supabase/supabase-js'],
+  },
 }
 
 module.exports = nextConfig
