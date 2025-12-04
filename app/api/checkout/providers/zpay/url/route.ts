@@ -84,7 +84,6 @@ export async function POST(request: NextRequest) {
     const requiredEnvVars = {
       ZPAY_PID: process.env.ZPAY_PID,
       ZPAY_KEY: process.env.ZPAY_KEY,
-      NEXT_PUBLIC_BASE_URL: process.env.NEXT_PUBLIC_BASE_URL,
     };
 
     console.log('环境变量状态:');
@@ -94,7 +93,6 @@ export async function POST(request: NextRequest) {
     console.log('  - ZPAY_KEY:', requiredEnvVars.ZPAY_KEY ? 
       `已设置 (长度: ${requiredEnvVars.ZPAY_KEY.length})` : 
       '❌ 未设置');
-    console.log('  - BASE_URL:', requiredEnvVars.NEXT_PUBLIC_BASE_URL || '❌ 未设置');
 
     // 验证环境变量
     const missingVars = Object.entries(requiredEnvVars)
