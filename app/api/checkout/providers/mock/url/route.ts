@@ -36,12 +36,60 @@ export async function POST(request: NextRequest) {
 
     console.log('产品ID:', productId);
 
-    // 获取产品信息
-    const productsResponse = await fetch(
-      `${process.env.NEXT_PUBLIC_BASE_URL}/api/products`
-    );
-    const productsData = await productsResponse.json();
-    const product = productsData.products[productId];
+    // 直接使用产品数据，避免依赖外部 API 调用
+    const products: Record<string, any> = {
+      "basic-onetime": {
+        id: "basic-onetime",
+        name: "基础版AI编程教程",
+        title: "基础版",
+        description: "探索入门教程，学习AI编程基础知识，参与社区讨论。",
+        price: "0.1",
+        priceLabel: "/一次性",
+        isSubscription: false,
+        features: [
+          { id: "basic-1", text: "基础入门视频教程" },
+          { id: "basic-2", text: "社区讨论区交流" },
+          { id: "basic-3", text: "AI开发工具介绍" },
+          { id: "basic-4", text: "编程环境搭建指南" },
+        ],
+      },
+      "pro-monthly": {
+        id: "pro-monthly",
+        name: "专业版AI编程教程 (月付)",
+        title: "专业版",
+        description: "获得完整课程内容和项目源码，一年内享受专业答疑服务。",
+        price: "0.1",
+        priceLabel: "/月",
+        isSubscription: true,
+        subscriptionPeriod: "monthly",
+        features: [
+          { id: "pro-1", text: "进阶课程和视频教程" },
+          { id: "pro-2", text: "20+实战项目源码" },
+          { id: "pro-3", text: "一年专属群内答疑服务" },
+          { id: "pro-4", text: "项目实战指导" },
+          { id: "pro-5", text: "产品创意分享与推广机会" },
+        ],
+      },
+      "pro-yearly": {
+        id: "pro-yearly",
+        name: "专业版AI编程教程 (年付)",
+        title: "专业版",
+        description: "获得完整课程内容和项目源码，一年内享受专业答疑服务。",
+        price: "1",
+        priceLabel: "/年",
+        isSubscription: true,
+        subscriptionPeriod: "yearly",
+        features: [
+          { id: "pro-1", text: "进阶课程和视频教程" },
+          { id: "pro-2", text: "20+实战项目源码" },
+          { id: "pro-3", text: "一年专属群内答疑服务" },
+          { id: "pro-4", text: "项目实战指导" },
+          { id: "pro-5", text: "产品创意分享与推广机会" },
+        ],
+      },
+    };
+    
+    const product = products[productId];
 
     if (!product) {
       return NextResponse.json(
@@ -150,7 +198,13 @@ export async function POST(request: NextRequest) {
     console.log('✅ 模拟支付成功，订单已创建');
 
     // 直接跳转到成功页面（模拟支付无需跳转到支付网关）
-    const mockPaymentUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/payment/success?mock=true&out_trade_no=${outTradeNo}`;
+    // 使用请求头获取基础 URL，确保在 Vercel 环境中正确
+    const requestUrl = new URL(request.url);
+    const baseUrl = `${requestUrl.protocol}//${requestUrl.host}`;
+    
+    const mockPaymentUrl = `${baseUrl}/payment/success?mock=true&out_trade_no=${outTradeNo}`;
+    
+    console.log(`模拟支付URL: ${mockPaymentUrl}`);
 
     return NextResponse.json({
       success: true,
