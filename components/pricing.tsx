@@ -68,7 +68,8 @@ export default function Pricing() {
 
       // 决定使用真实支付还是模拟支付
       // 如果环境变量中设置了 USE_MOCK_PAYMENT=true，或者在开发环境下可以使用模拟支付
-      const useMockPayment = process.env.NEXT_PUBLIC_USE_MOCK_PAYMENT === 'true';
+      // 默认使用模拟支付，除非明确设置为 false
+      const useMockPayment = process.env.NEXT_PUBLIC_USE_MOCK_PAYMENT !== 'false';
       const apiEndpoint = useMockPayment 
         ? "/api/checkout/providers/mock/url"
         : "/api/checkout/providers/zpay/url";
