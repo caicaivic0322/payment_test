@@ -66,15 +66,10 @@ export default function Pricing() {
         return;
       }
 
-      // 决定使用真实支付还是模拟支付
-      // 如果环境变量中设置了 USE_MOCK_PAYMENT=true，或者在开发环境下可以使用模拟支付
-      // 默认使用模拟支付，除非明确设置为 false
-      const useMockPayment = process.env.NEXT_PUBLIC_USE_MOCK_PAYMENT !== 'false';
-      const apiEndpoint = useMockPayment 
-        ? "/api/checkout/providers/mock/url"
-        : "/api/checkout/providers/zpay/url";
+      // 使用真实支付API
+      const apiEndpoint = "/api/checkout/providers/zpay/url";
 
-      console.log(`使用${useMockPayment ? '模拟' : '真实'}支付 API:`, apiEndpoint);
+      console.log(`使用真实支付 API:`, apiEndpoint);
 
       // 调用API获取支付链接
       const response = await fetch(apiEndpoint, {
@@ -95,11 +90,6 @@ export default function Pricing() {
       }
 
       if (data.success && data.paymentUrl) {
-        // 如果是模拟支付，显示提示
-        if (data.mock) {
-          console.log('🎭 模拟支付模式:', data.message);
-        }
-        
         // 跳转到支付页面
         window.location.href = data.paymentUrl;
       } else {
