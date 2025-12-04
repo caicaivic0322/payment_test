@@ -1,103 +1,107 @@
-'use client';
+"use client";
 
-import React, { useEffect } from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
+import { useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
 
 export default function PaymentSuccess() {
-  // 页面加载完成后的动画效果
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      const successIcon = document.getElementById('success-icon');
-      if (successIcon) {
-        successIcon.classList.add('scale-100');
-        successIcon.classList.remove('scale-0');
-      }
-      
-      const text = document.getElementById('success-text');
-      if (text) {
-        text.classList.add('opacity-100');
-        text.classList.remove('opacity-0');
-      }
-      
-      const button = document.getElementById('dashboard-button');
-      if (button) {
-        button.classList.add('opacity-100');
-        button.classList.remove('opacity-0');
-      }
-    }, 300);
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [updateMessage, setUpdateMessage] = useState("正在处理支付结果...");
+  const [isSuccess, setIsSuccess] = useState(false);
 
-    return () => clearTimeout(timeout);
-  }, []);
+  useEffect(() => {
+    const processPaymentResult = async () => {
+      setIsUpdating(true);
+      
+      try {
+        // 从URL参数中获取订单信息
+        const outTradeNo = searchParams.get("out_trade_no");
+        const tradeNo = searchParams.get("trade_no");
+        
+        if (outTradeNo) {
+          // 调用API更新订单状态
+          const response = await fetch("/api/payment/verify", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              out_trade_no: outTradeNo,
+              trade_no: tradeNo,
+            }),
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            if (data.success) {
+              setUpdateMessage("支付成功！您的订单已更新。");
+              setIsSuccess(true);
+            } else {
+              setUpdateMessage("支付结果处理中，请稍后在个人中心查看。");
+            }
+          } else {
+            setUpdateMessage("支付结果处理中，请稍后在个人中心查看。");
+          }
+        } else {
+          setUpdateMessage("支付成功！感谢您的购买。");
+          setIsSuccess(true);
+        }
+      } catch (error) {
+        console.error("处理支付结果失败:", error);
+        setUpdateMessage("支付成功！感谢您的购买。");
+        setIsSuccess(true);
+      } finally {
+        setIsUpdating(false);
+      }
+    };
+
+    // 延迟执行，给支付回调一些时间
+    const timer = setTimeout(processPaymentResult, 1000);
+    return () => clearTimeout(timer);
+  }, [searchParams]);
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 px-4">
-      <div className="w-full max-w-md p-8 space-y-8 bg-white rounded-xl shadow-lg">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-8">
         <div className="text-center">
-          <div 
-            id="success-icon" 
-            className="mx-auto w-24 h-24 bg-green-100 rounded-full flex items-center justify-center transform transition-transform duration-700 scale-0"
-          >
-            <svg 
-              xmlns="http://www.w3.org/2000/svg" 
-              className="h-12 w-12 text-green-500"
-              fill="none" 
-              viewBox="0 0 24 24" 
-              stroke="currentColor"
-            >
-              <path 
-                strokeLinecap="round" 
-                strokeLinejoin="round" 
-                strokeWidth={2} 
-                d="M5 13l4 4L19 7" 
-              />
-            </svg>
+          <div className={`mx-auto h-16 w-16 rounded-full ${isSuccess ? 'bg-green-100' : 'bg-blue-100'} flex items-center justify-center ${isSuccess ? 'animate-pulse' : 'animate-spin'}`}>
+            {isSuccess ? (
+              <svg className="h-8 w-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+            ) : (
+              <svg className="h-8 w-8 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+            )}
           </div>
-          
-          <h2 
-            id="success-text" 
-            className="mt-6 text-3xl font-extrabold text-gray-900 transition-opacity duration-700 delay-300 opacity-0"
-          >
-            支付成功！
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+            支付成功
           </h2>
-          
-          <p className="mt-2 text-gray-600">
-            感谢您的付款，您的订单已经处理完成。
+          <p className="mt-2 text-center text-sm text-gray-600">
+            {updateMessage}
           </p>
         </div>
         
-        <div className="mt-8 border-t border-gray-200 pt-6">
-          <Link 
-            href="/dashboard" 
-            id="dashboard-button"
-            className="group w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-opacity duration-700 delay-500 opacity-0"
+        <div className="mt-8">
+          <Link
+            href="/dashboard"
+            className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
           >
-            <span className="flex items-center">
-              <span className="mr-2">
-                <svg 
-                  xmlns="http://www.w3.org/2000/svg" 
-                  className="h-5 w-5" 
-                  fill="none" 
-                  viewBox="0 0 24 24" 
-                  stroke="currentColor"
-                >
-                  <path 
-                    strokeLinecap="round" 
-                    strokeLinejoin="round" 
-                    strokeWidth={2} 
-                    d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" 
-                  />
-                </svg>
-              </span>
-              前往个人中心
-            </span>
+            前往个人中心
           </Link>
         </div>
-      </div>
-      
-      <div className="mt-8 text-sm text-gray-500">
-        如有任何问题，请<Link href="/contact" className="text-blue-600 hover:text-blue-800">联系我们</Link>
+        
+        {!isUpdating && (
+          <div className="mt-4 text-center">
+            <p className="text-xs text-gray-500">
+              如果您的订单状态未及时更新，请稍后刷新页面或联系客服
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );
-} 
+}

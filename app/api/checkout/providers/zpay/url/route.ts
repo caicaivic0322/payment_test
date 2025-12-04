@@ -283,7 +283,7 @@ export async function POST(request: NextRequest) {
     const baseUrl = `${requestUrl.protocol}//${requestUrl.host}`;
     
     const notifyUrl = `${baseUrl}/api/checkout/providers/zpay/webhook`;
-    const returnUrl = `${baseUrl}/payment/success`;
+    const returnUrl = `${baseUrl}/payment/success?out_trade_no=${outTradeNo}`;
     
     console.log(`通知URL: ${notifyUrl}`);
     console.log(`返回URL: ${returnUrl}`);
