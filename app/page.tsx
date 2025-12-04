@@ -7,6 +7,7 @@ import Testimonials from '@/components/testimonials'
 import Faqs from '@/components/faqs'
 import Blog from '@/components/blog'
 import Cta from '@/components/cta'
+import Header from '@/components/ui/header'
 
 export const metadata = {
   title: 'AI编程学习 - 0基础入门',
@@ -16,6 +17,7 @@ export const metadata = {
 export default function Home() {
   return (
     <>
+      <Header />
       <Hero />
       <Inspiration />
       <Carousel />
